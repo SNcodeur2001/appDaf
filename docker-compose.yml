@@ -6,18 +6,10 @@ services:
       context: .
       dockerfile: .docker/php/Dockerfile
     container_name: appdaf_php
-    environment:
-      DB_HOST: postgres
-      DB_PORT: 5432
-      DB_NAME: pgdbDaf
-      DB_USER: pguserDaf
-      DB_PASSWORD: pgpassword
     volumes:
       - ./public:/var/www/html/public  # Changé de ./app vers ./public
     networks:
       - backend
-    depends_on:
-      - postgres
 
   nginx:
     image: nginx:latest
@@ -45,14 +37,14 @@ services:
       - pg_data:/var/lib/postgresql/data
     networks:
       - backend
-
+    
   pgadmin:
     container_name: pgadminDaf
     image: dpage/pgadmin4
     ports:
       - "5051:80"
     environment:
-      PGADMIN_DEFAULT_EMAIL: admin@example.com
+      PGADMIN_DEFAULT_EMAIL: zeynab@gmail.com
       PGADMIN_DEFAULT_PASSWORD: adminpass
     depends_on:
       - postgres

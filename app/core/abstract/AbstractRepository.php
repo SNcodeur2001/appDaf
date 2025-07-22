@@ -33,4 +33,5 @@ abstract class AbstractRepository
             throw new \Exception("Erreur de connexion à la base de données: " . $e->getMessage());
         }
     }
+    
 }
