@@ -27,16 +27,21 @@ abstract class AbstractController
 
 
 
-    // protected function renderHtml(string $view, array $params = [])
-    // {
-    //     extract($params);
-
-    //     ob_start();
-    //     require_once '../templates/' . $view;
-    //     $contentForLayout = ob_get_clean();
-
-    //     require_once '../templates/layout/' . $this->layout;
-    // }
+    protected function renderJson(array $data = null, string $status = "success", int $code = 200, string $message = ""): void
+    {
+        header('Content-Type: application/json');
+        http_response_code($code);
+        
+        $response = [
+            'data' => $data,
+            'statut' => $status,
+            'code' => $code,
+            'message' => $message
+        ];
+        
+        echo json_encode($response, JSON_UNESCAPED_UNICODE);
+        exit;
+    }
 
 
 

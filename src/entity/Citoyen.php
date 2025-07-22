@@ -1,70 +1,96 @@
-<?php 
+<?php
+
 namespace App\Entity;
 
-use App\Core\Abstract\AbstractEntity;
-use DateTime;
-
-class Citoyen extends AbstractEntity
+class Citoyen
 {
-    private int  $id;
+    private ?int $id;
+    private string $nci;
     private string $nom;
     private string $prenom;
-    private string $cni;
-    private DateTime $dateNaissance;
+    private string $dateNaissance;
     private string $lieuNaissance;
-    private string $photoCniRecto;
-    private string $photoCniVerso;
+    private ?string $urlPhotoIdentite;
+    private ?\DateTime $createdAt;
+    private ?\DateTime $updatedAt;
 
-    public function __construct(int $id = 0, string $nom = "", string $prenom = "", string $cni = "", DateTime $dateNaissance = new DateTime(), string $lieuNaissance = "", string $photoCniRecto = "", string $photoCniVerso = "")
-    {
+    public function __construct(
+        string $nci,
+        string $nom,
+        string $prenom,
+        string $dateNaissance,
+        string $lieuNaissance,
+        ?string $urlPhotoIdentite = null,
+        ?int $id = null
+    ) {
         $this->id = $id;
+        $this->nci = $nci;
         $this->nom = $nom;
         $this->prenom = $prenom;
-        $this->cni = $cni;
         $this->dateNaissance = $dateNaissance;
         $this->lieuNaissance = $lieuNaissance;
-        $this->photoCniRecto = $photoCniRecto;
-        $this->photoCniVerso = $photoCniVerso;
+        $this->urlPhotoIdentite = $urlPhotoIdentite;
+        $this->createdAt = new \DateTime();
+        $this->updatedAt = new \DateTime();
     }
-      
 
-    public function getId(): int
+    // Getters
+    public function getId(): ?int
     {
         return $this->id;
     }
+
+    public function getNci(): string
+    {
+        return $this->nci;
+    }
+
     public function getNom(): string
     {
         return $this->nom;
     }
+
     public function getPrenom(): string
     {
         return $this->prenom;
     }
-    public function getCni(): string
-    {
-        return $this->cni;
-    }
-    public function getDateNaissance(): DateTime
 
+    public function getDateNaissance(): string
     {
         return $this->dateNaissance;
     }
+
     public function getLieuNaissance(): string
     {
         return $this->lieuNaissance;
     }
-    public function getPhotoCniRecto(): string
+
+    public function getUrlPhotoIdentite(): ?string
     {
-        return $this->photoCniRecto;
+        return $this->urlPhotoIdentite;
     }
-    public function getPhotoCniVerso(): string
+
+    public function getCreatedAt(): ?\DateTime
     {
-        return $this->photoCniVerso;
+        return $this->createdAt;
     }
+
+    public function getUpdatedAt(): ?\DateTime
+    {
+        return $this->updatedAt;
+    }
+
+    // Setters
     public function setId(int $id): void
     {
         $this->id = $id;
     }
+
+    public function setNci(string $nci): void
+    {
+        $this->nci = $nci;
+    }
+
     public function setNom(string $nom): void
     {
         $this->nom = $nom;
@@ -74,55 +100,37 @@ class Citoyen extends AbstractEntity
     {
         $this->prenom = $prenom;
     }
-    public function setCni(string $cni): void
-    {
-        $this->cni = $cni;
-       
-    }
-    public function setDateNaissance(DateTime $dateNaissance): void
+
+    public function setDateNaissance(string $dateNaissance): void
     {
         $this->dateNaissance = $dateNaissance;
     }
+
     public function setLieuNaissance(string $lieuNaissance): void
     {
         $this->lieuNaissance = $lieuNaissance;
     }
-    public function setPhotoCniRecto(string $photoCniRecto): void
+
+    public function setUrlPhotoIdentite(?string $urlPhotoIdentite): void
     {
-        $this->photoCniRecto = $photoCniRecto;
-    }
-    public function setPhotoCniVerso(string $photoCniVerso): void
-    {
-        $this->photoCniVerso = $photoCniVerso;
-    
+        $this->urlPhotoIdentite = $urlPhotoIdentite;
     }
 
+    public function setUpdatedAt(\DateTime $updatedAt): void
+    {
+        $this->updatedAt = $updatedAt;
+    }
+
+    // Méthode pour convertir en array (utile pour l'API JSON)
     public function toArray(): array
     {
         return [
-            'id' => $this->id,
+            'nci' => $this->nci,
             'nom' => $this->nom,
             'prenom' => $this->prenom,
-            'cni' => $this->cni,
-            'dateNaissance' => $this->dateNaissance->format('Y-m-d'),
-            'lieuNaissance' => $this->lieuNaissance,
-            'photoCniRecto' => $this->photoCniRecto,
-            'photoCniVerso' => $this->photoCniVerso
+            'date' => $this->dateNaissance,
+            'lieu' => $this->lieuNaissance,
+            'url_photo_identite' => $this->urlPhotoIdentite
         ];
     }
-
-    public static function toObject(array $tableau): static{
-        $citoyen = new static();
-        $citoyen->setId($tableau['id'] ?? 0);
-        $citoyen->setNom($tableau['nom'] ?? '');
-        $citoyen->setPrenom($tableau['prenom'] ?? '');
-        $citoyen->setCni($tableau['cni'] ?? '');
-        $citoyen->setDateNaissance(new DateTime($tableau['dateNaissance'] ?? 'now'));
-        $citoyen->setLieuNaissance($tableau['lieuNaissance'] ?? '');
-        $citoyen->setPhotoCniRecto($tableau['photoCniRecto'] ?? '');
-        $citoyen->setPhotoCniVerso($tableau['photoCniVerso'] ?? '');
-
-        return $citoyen;
-    }
-
 }

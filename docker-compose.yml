@@ -6,10 +6,18 @@ services:
       context: .
       dockerfile: .docker/php/Dockerfile
     container_name: appdaf_php
+    environment:
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: pgdbDaf
+      DB_USER: pguserDaf
+      DB_PASSWORD: pgpassword
     volumes:
       - ./public:/var/www/html/public  # Changé de ./app vers ./public
     networks:
       - backend
+    depends_on:
+      - postgres
 
   nginx:
     image: nginx:latest

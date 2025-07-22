@@ -7,4 +7,9 @@ RUN apt-get update && apt-get install -y \
     && docker-php-ext-install pdo pdo_pgsql
 
 WORKDIR /var/www/html
-COPY ./public /var/www/html/public
+
+# Copier tout le projet dans le conteneur
+COPY . /var/www/html/
+
+# Définir les permissions appropriées
+RUN chown -R www-data:www-data /var/www/html

@@ -1,10 +1,13 @@
 <?php
 namespace App\Repository;
 
-class JournalRepository
+use App\Core\Abstract\AbstractRepository;
+use pdo;
+
+class JournalRepository extends AbstractRepository
 {
+    protected \PDO $pdo;
     private static ?JournalRepository $journalRepository = null;
-    // Autres méthodes spécifiques au citoyen...
 
     public function getInstance(){
         if (self::$journalRepository === null) {
@@ -14,8 +17,16 @@ class JournalRepository
     }
     private function __construct()
     {
+        parent::__construct();
+
         
     }
+     public function selectAll(){}
+     public function insert(){}
+     public function update(){}
+     public function delete(){}
+     public function selectById(){}
+     public function selectBy(Array $filtre){}
 
-    // Autres méthodes spécifiques au citoyen...
+
 }

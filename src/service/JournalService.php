@@ -17,5 +17,4 @@ class JournalService
     {
         
     }
-    // Autres méthodes spécifiques au citoyen...
 }
