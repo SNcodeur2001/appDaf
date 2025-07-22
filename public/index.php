@@ -11,6 +11,6 @@ try {
 }
 
 // 💡 Charger les routes AVANT de résoudre la requête
-require_once __DIR__ . '/../app/routes/routes.php';
+require_once __DIR__ . '/../routes/routes.php';
 
 Router::resolve();
