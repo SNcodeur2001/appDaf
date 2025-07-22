@@ -1,15 +1,22 @@
-# docker/php/Dockerfile
-FROM php:8.3-fpm
+FROM php:8.2-fpm
 
-# Installe les bibliothèques nécessaires à pdo_pgsql
+# Install extensions
 RUN apt-get update && apt-get install -y \
-    libpq-dev \
-    && docker-php-ext-install pdo pdo_pgsql
+    libpq-dev unzip curl && \
+    docker-php-ext-install pdo pdo_pgsql
 
-WORKDIR /var/www/html
+# Installer Composer
+COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
-# Copier tout le projet dans le conteneur
-COPY . /var/www/html/
+# Installer les dépendances du projet
+WORKDIR /var/www
+COPY . /var/www
+RUN composer install
 
-# Définir les permissions appropriées
-RUN chown -R www-data:www-data /var/www/html
+# Droits
+RUN chown -R www-data:www-data /var/www
+
+EXPOSE 9000
+
+# Démarrer le serveur intégré PHP
+CMD ["php", "-S", "0.0.0.0:8000", "-t", "public"]
