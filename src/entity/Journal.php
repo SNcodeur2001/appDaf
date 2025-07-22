@@ -24,7 +24,7 @@ class Journal extends AbstractEntity
         $this->localisation = $localisation;
         $this->status = $status;
         $this->codeHttp = $codeHttp;
-        $this->citoyen = new Citoyen();
+        $this->citoyen = new Citoyen(  );
     }
 
     public function getId(): int

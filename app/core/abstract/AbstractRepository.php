@@ -1,29 +1,36 @@
-<?php 
+<?php
+
 namespace App\Core\Abstract;
-use App\Core\Abstract\Database;
+
+use PDO;
+use PDOException;
 
 abstract class AbstractRepository
 {
-    protected \PDO $pdo;
+    protected PDO $pdo;
+
     public function __construct()
     {
-    $this->pdo = Database::getConnection();
-
-        
+        $this->pdo = $this->getConnection();
     }
 
-    abstract public function selectAll();
+    protected function getConnection(): PDO
+    {
+        $host = $_ENV['DB_HOST'] ?? 'localhost';
+        $port = $_ENV['DB_PORT'] ?? '5433';
+        $dbname = $_ENV['DB_NAME'] ?? 'pgdbDaf';
+        $username = $_ENV['DB_USER'] ?? 'pguserDaf';
+        $password = $_ENV['DB_PASSWORD'] ?? 'pgpassword';
 
-    abstract public function insert();
-
-    abstract public function update();
-
-    abstract public function delete();
-
-    abstract public function selectById();
-
-    abstract public function selectBy(Array $filtre);
-
-  
-    
+        try {
+            $dsn = "pgsql:host=$host;port=$port;dbname=$dbname";
+            $pdo = new PDO($dsn, $username, $password, [
+                PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+                PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC
+            ]);
+            return $pdo;
+        } catch (PDOException $e) {
+            throw new \Exception("Erreur de connexion à la base de données: " . $e->getMessage());
+        }
+    }
 }

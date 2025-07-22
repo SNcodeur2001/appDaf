@@ -6,21 +6,12 @@ use App\Service\CitoyenService;
 
 class CitoyenController extends AbstractController
 {
-    private static ?CitoyenController $citoyenController = null;
     private CitoyenService $citoyenService;
 
-    public static function getInstance(): CitoyenController
-    {
-        if (self::$citoyenController === null) {
-            self::$citoyenController = new CitoyenController();
-        }
-        return self::$citoyenController;
-    }
-
-    private function __construct()
+    public function __construct(CitoyenService $citoyenService)
     {
         parent::__construct();
-        $this->citoyenService = CitoyenService::getInstance();
+        $this->citoyenService = $citoyenService;
     }
 
    
@@ -64,6 +55,20 @@ class CitoyenController extends AbstractController
                 return;
             }
 
+            // Validation des données requises
+            $requiredFields = ['nci', 'nom', 'prenom', 'date_naissance', 'lieu_naissance'];
+            foreach ($requiredFields as $field) {
+                if (empty($input[$field])) {
+                    $this->renderJson(
+                        null,
+                        "error",
+                        400,
+                        "Le champ '$field' est requis"
+                    );
+                    return;
+                }
+            }
+
             $citoyen = $this->citoyenService->createCitoyen($input);
             
             $this->renderJson(
@@ -99,11 +104,17 @@ class CitoyenController extends AbstractController
             $nci = $_GET['nci'] ?? null;
             
             if (!$nci) {
+                $this->renderJson( null, "error", 400, "Le paramètre NCI est requis");
+                return;
+            }
+
+            // Validation du format NCI
+            if (empty(trim($nci))) {
                 $this->renderJson(
                     null,
                     "error",
                     400,
-                    "Le paramètre NCI est requis"
+                    "Le NCI ne peut pas être vide"
                 );
                 return;
             }

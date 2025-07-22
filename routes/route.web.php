@@ -31,7 +31,7 @@ elseif ($_SERVER['REQUEST_METHOD'] === 'GET' && $_SERVER['REQUEST_URI'] === '/ap
 
 // Route pour créer un nouveau citoyen
 // POST /api/citoyens
-elseif ($_SERVER['REQUEST_METHOD'] === 'POST' && $_SERVER['REQUEST_URI'] === '/api/citoyens') {
+elseif ($_SERVER['REQUEST_METHOD'] === 'POST' && $_SERVER['REQUEST_URI'] === '/api/céitoyens') {
     $controller = CitoyenController::getInstance();
     $controller->store();
 }

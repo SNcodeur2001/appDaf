@@ -2,46 +2,12 @@
 
 namespace App\Service;
 
+use App\Core\Abstract\AbstractRepository;
 use PDO;
 use PDOException;
 
-class LoggerService
+class LoggerService extends AbstractRepository
 {
-    private PDO $pdo;
-    private static ?LoggerService $instance = null;
-
-    private function __construct()
-    {
-        $this->pdo = $this->getConnection();
-    }
-
-    public static function getInstance(): LoggerService
-    {
-        if (self::$instance === null) {
-            self::$instance = new LoggerService();
-        }
-        return self::$instance;
-    }
-
-    private function getConnection(): PDO
-    {
-        $host = $_ENV['DB_HOST'] ?? 'localhost';
-        $port = $_ENV['DB_PORT'] ?? '5433';
-        $dbname = $_ENV['DB_NAME'] ?? 'pgdbDaf';
-        $username = $_ENV['DB_USER'] ?? 'pguserDaf';
-        $password = $_ENV['DB_PASSWORD'] ?? 'pgpassword';
-
-        try {
-            $dsn = "pgsql:host=$host;port=$port;dbname=$dbname";
-            $pdo = new PDO($dsn, $username, $password, [
-                PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
-                PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC
-            ]);
-            return $pdo;
-        } catch (PDOException $e) {
-            throw new \Exception("Erreur de connexion à la base de données pour le logger: " . $e->getMessage());
-        }
-    }
 
     public function logRequest(
         string $statut,

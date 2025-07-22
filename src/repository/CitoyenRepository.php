@@ -2,47 +2,13 @@
 
 namespace App\Repository;
 
+use App\Core\Abstract\AbstractRepository;
 use App\Entity\Citoyen;
 use PDO;
 use PDOException;
 
-class CitoyenRepository
+class CitoyenRepository extends AbstractRepository
 {
-    private PDO $pdo;
-    private static ?CitoyenRepository $instance = null;
-
-    private function __construct()
-    {
-        $this->pdo = $this->getConnection();
-    }
-
-    public static function getInstance(): CitoyenRepository
-    {
-        if (self::$instance === null) {
-            self::$instance = new CitoyenRepository();
-        }
-        return self::$instance;
-    }
-
-    private function getConnection(): PDO
-    {
-        $host = $_ENV['DB_HOST'] ?? 'localhost';
-        $port = $_ENV['DB_PORT'] ?? '5433';
-        $dbname = $_ENV['DB_NAME'] ?? 'pgdbDaf';
-        $username = $_ENV['DB_USER'] ?? 'pguserDaf';
-        $password = $_ENV['DB_PASSWORD'] ?? 'pgpassword';
-
-        try {
-            $dsn = "pgsql:host=$host;port=$port;dbname=$dbname";
-            $pdo = new PDO($dsn, $username, $password, [
-                PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
-                PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC
-            ]);
-            return $pdo;
-        } catch (PDOException $e) {
-            throw new \Exception("Erreur de connexion à la base de données: " . $e->getMessage());
-        }
-    }
 
     public function findByNci(string $nci): ?Citoyen
     {

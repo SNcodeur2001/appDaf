@@ -20,7 +20,8 @@
   ],
   "require": {
     "vlucas/phpdotenv": "^5.6",
-    "twilio/sdk": "^8.6"
+    "twilio/sdk": "^8.6",
+    "symfony/yaml": "^6.0"
   },
   "scripts": {
     "database:migrate": "php migrations/migration.php --reset",
