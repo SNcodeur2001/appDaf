@@ -1,85 +1,71 @@
 <?php
+
 namespace App\Repository;
-use App\Core\abstract\AbstractRepository;
-use Pdo;
 
+use App\Entity\Citoyen;
 
-   class CitoyenRepository extends AbstractRepository
+class CitoyenRepository
 {
-    public function __construct(PDO $pdo)
+    private string $file;
+
+    public function __construct()
     {
-        parent::__construct($pdo);
+        $this->file = __DIR__ . '/../data/citoyens.json';
     }
 
-    public function logRequest(
-        string $statut,
-        ?string $nciRecherche = null,
-        ?string $localisation = null,
-        ?string $endpoint = null,
-        ?string $method = null,
-        ?int $responseTime = null
-    ): void {
-        try {
-            $ipAddress = $this->getClientIpAddress();
-            $userAgent = $_SERVER['HTTP_USER_AGENT'] ?? null;
-
-            $stmt = $this->pdo->prepare("
-                INSERT INTO request_logs 
-                (date_heure, localisation, ip_address, statut, nci_recherche, endpoint, method, user_agent, response_time_ms) 
-                VALUES (CURRENT_TIMESTAMP, :localisation, :ip_address, :statut, :nci_recherche, :endpoint, :method, :user_agent, :response_time)
-            ");
-
-            $stmt->execute([
-                ':localisation'   => $localisation,
-                ':ip_address'     => $ipAddress,
-                ':statut'         => $statut,
-                ':nci_recherche'  => $nciRecherche,
-                ':endpoint'       => $endpoint,
-                ':method'         => $method,
-                ':user_agent'     => $userAgent,
-                ':response_time'  => $responseTime,
-            ]);
-        } catch (\PDOException $e) {
-            error_log("Erreur lors de la journalisation: " . $e->getMessage());
+    private function readData(): array
+    {
+        if (!file_exists($this->file)) {
+            return [];
         }
+
+        $json = file_get_contents($this->file);
+        return json_decode($json, true) ?? [];
     }
 
-    private function getClientIpAddress(): string
+    private function writeData(array $data): void
     {
-        $ipKeys = ['HTTP_X_FORWARDED_FOR', 'HTTP_X_REAL_IP', 'HTTP_CLIENT_IP', 'REMOTE_ADDR'];
+        file_put_contents($this->file, json_encode($data, JSON_PRETTY_PRINT));
+    }
 
-        foreach ($ipKeys as $key) {
-            if (!empty($_SERVER[$key])) {
-                $ip = $_SERVER[$key];
-                if (strpos($ip, ',') !== false) {
-                    $ip = trim(explode(',', $ip)[0]);
-                }
-                if (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE)) {
-                    return $ip;
-                }
+    public function findAll(): array
+    {
+        return array_map(function ($item) {
+            return new Citoyen(
+                $item['nci'],
+                $item['nom'],
+                $item['prenom'],
+                $item['date_naissance'],
+                $item['lieu_naissance'],
+                $item['url_photo_identite'] ?? null
+            );
+        }, $this->readData());
+    }
+
+    public function findByNci(string $nci): ?Citoyen
+    {
+        foreach ($this->readData() as $citoyen) {
+            if ($citoyen['nci'] === $nci) {
+                return new Citoyen(
+                    $citoyen['nci'],
+                    $citoyen['nom'],
+                    $citoyen['prenom'],
+                    $citoyen['date_naissance'],
+                    $citoyen['lieu_naissance'],
+                    $citoyen['url_photo_identite'] ?? null
+                );
             }
         }
-
-        return $_SERVER['REMOTE_ADDR'] ?? '127.0.0.1';
+        return null;
     }
 
-    public function getRequestLogs(int $limit = 100, int $offset = 0): array
+    public function save(Citoyen $citoyen): bool
     {
-        try {
-            $stmt = $this->pdo->prepare("
-                SELECT * FROM request_logs 
-                ORDER BY date_heure DESC 
-                LIMIT :limit OFFSET :offset
-            ");
-            
-            $stmt->execute([
-                ':limit' => $limit,
-                ':offset' => $offset
-            ]);
+        $citoyens = $this->readData();
 
-            return $stmt->fetchAll();
-        } catch (\PDOException $e) {
-            throw new \Exception("Erreur lors de la récupération des logs: " . $e->getMessage());
-        }
+        $citoyens[] = $citoyen->toArray(); // Assure-toi que `Citoyen` a bien une méthode `toArray()`
+
+        $this->writeData($citoyens);
+        return true;
     }
 }
