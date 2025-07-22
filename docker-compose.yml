@@ -1,61 +1,50 @@
-version: "3.8"
-
 services:
-  php:
+
+  app:
     build:
       context: .
       dockerfile: .docker/php/Dockerfile
-    container_name: appdaf_php
-    volumes:
-      - ./public:/var/www/html/public  # Changé de ./app vers ./public
-    networks:
-      - backend
-
-  nginx:
-    image: nginx:latest
-    container_name: appdaf_nginx
-    depends_on:
-      - php
+    container_name: appdaf
     ports:
-      - "8081:80"
+      - "8000:8000"
     volumes:
-      - ./public:/var/www/html/public
-      - ./.docker/nginx/default.conf:/etc/nginx/conf.d/default.conf
-    networks:
-      - backend
-
-  postgres:
-    container_name: postgresDaf
-    image: postgres:16
-    ports:
-      - "5433:5432"
-    environment:
-      POSTGRES_DB: pgdbDaf
-      POSTGRES_USER: pguserDaf
-      POSTGRES_PASSWORD: pgpassword
-    volumes:
-      - pg_data:/var/lib/postgresql/data
-    networks:
-      - backend
-    
-  pgadmin:
-    container_name: pgadminDaf
-    image: dpage/pgadmin4
-    ports:
-      - "5051:80"
-    environment:
-      PGADMIN_DEFAULT_EMAIL: zeynab@gmail.com
-      PGADMIN_DEFAULT_PASSWORD: adminpass
+      - .:/var/www/html
+    working_dir: /var/www/html
     depends_on:
       - postgres
-    volumes:
-      - pgadmin_data:/var/lib/pgadmin
     networks:
-      - backend
+      - appnet
+
+  nginx:
+    image: nginx:alpine
+    container_name: nginxdaf
+    ports:
+      - "80:80"
+    volumes:
+      - .:/var/www/html
+      - ./.docker/nginx/default.conf:/etc/nginx/conf.d/default.conf
+    depends_on:
+      - app
+    networks:
+      - appnet
+
+  postgres:
+    image: postgres:15
+    container_name: pgdaf
+    restart: always
+    environment:
+      POSTGRES_DB: dafdb
+      POSTGRES_USER: root
+      POSTGRES_PASSWORD: root
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    networks:
+      - appnet
 
 volumes:
-  pg_data:
-  pgadmin_data:
+  pgdata:
 
 networks:
-  backend:
+  appnet:
