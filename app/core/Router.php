@@ -34,9 +34,6 @@ class Router
 
     public static function resolve(): void
     {
-        if (!self::$routesLoaded) {
-            self::loadRoutes();
-        }
 
         $uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
         $method = $_SERVER['REQUEST_METHOD'];
@@ -47,9 +44,7 @@ class Router
             if (preg_match('#^' . $pattern . '$#', $uri, $matches)) {
                 array_shift($matches);
 
-                if (!empty($route['middlewares'])) {
-                    self::runMiddlewares($route['middlewares']);
-                }
+                
 
                 header('Content-Type: application/json');
 
@@ -99,16 +94,4 @@ class Router
         ]);
     }
 
-    private static function loadRoutes(): void
-    {
-        require_once __DIR__ . '/../routes/routes.php';
-        self::$routesLoaded = true;
-    }
-
-    private static function runMiddlewares(array $middlewares): void
-    {
-        foreach ($middlewares as $middleware) {
-            (new $middleware())->handle();
-        }
-    }
 }

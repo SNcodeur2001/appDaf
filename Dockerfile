@@ -1,30 +1,28 @@
-# Dockerfile
+# Utilise l'image officielle PHP avec FPM
 FROM php:8.3-fpm
 
-# Installer les dépendances nécessaires
+# Installe les bibliothèques nécessaires à PDO pour PostgreSQL
 RUN apt-get update && apt-get install -y \
-    libpq-dev unzip curl git \
+    libpq-dev \
+    unzip \
+    curl \
     && docker-php-ext-install pdo pdo_pgsql
 
 # Installer Composer
 RUN curl -sS https://getcomposer.org/installer | php \
     && mv composer.phar /usr/local/bin/composer
 
-# Définir le répertoire de travail
+# Définir le répertoire de travail dans le conteneur
 WORKDIR /var/www/html
 
-# Copier uniquement les fichiers nécessaires pour installer les dépendances
-COPY composer.json composer.lock ./
+# Copier tout le projet dans le conteneur
+COPY . /var/www/html/
 
-# Installer les dépendances PHP
-RUN composer install --no-dev --optimize-autoloader
+# Installer les dépendances PHP via Composer
+RUN composer install --no-interaction --no-dev --prefer-dist
 
-
-# Copier tout le reste du code (routes, public/, src/, etc.)
-COPY . .
-
-# Changer les permissions
+# Définir les permissions appropriées
 RUN chown -R www-data:www-data /var/www/html
 
-# Lancer le serveur PHP interne (à adapter si tu utilises nginx/fpm)
+# Lancer le serveur PHP intégré en exposant le dossier public
 CMD ["php", "-S", "0.0.0.0:80", "-t", "public"]
