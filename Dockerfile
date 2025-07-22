@@ -1,4 +1,4 @@
-# docker/php/Dockerfile
+#Dockerfile
 FROM php:8.3-fpm
 
 # Installe les bibliothèques nécessaires à pdo_pgsql
