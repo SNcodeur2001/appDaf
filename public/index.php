@@ -1,6 +1,6 @@
 <?php
 require_once __DIR__ . '/../vendor/autoload.php';
-require_once __DIR__ . '/../../app/config/env.php';
+require_once __DIR__ . '/../app/config/env.php';
 use App\Core\Router;
 
 try {
