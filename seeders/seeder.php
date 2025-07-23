@@ -27,12 +27,12 @@ try {
     if ($reset) {
         echo "Suppression des données existantes...\n";
         $pdo->exec("TRUNCATE TABLE request_logs RESTART IDENTITY CASCADE");
-        $pdo->exec("TRUNCATE TABLE citoyens RESTART IDENTITY CASCADE");
+        $pdo->exec("TRUNCATE TABLE citoyen RESTART IDENTITY CASCADE");
         echo "Données supprimées.\n";
     }
 
     // Données de test pour les citoyens
-    $citoyens = [
+    $citoyen = [
         [
             'nci' => '1987654321012',
             'nom' => 'DIOP',
@@ -78,21 +78,21 @@ try {
     echo "Insertion des citoyens de test...\n";
 
     $stmt = $pdo->prepare("
-        INSERT INTO citoyens (nci, nom, prenom, date_naissance, lieu_naissance, url_photo_identite) 
+        INSERT INTO citoyen (nci, nom, prenom, date_naissance, lieu_naissance, url_photo_identite) 
         VALUES (:nci, :nom, :prenom, :date_naissance, :lieu_naissance, :url_photo_identite)
     ");
 
-    foreach ($citoyens as $citoyen) {
-        $stmt->execute($citoyen);
-        echo "Citoyen ajouté: {$citoyen['prenom']} {$citoyen['nom']} (NCI: {$citoyen['nci']})\n";
+    foreach ($citoyen as $c) {
+        $stmt->execute($c);
+        echo "Citoyen ajouté: {$c['prenom']} {$c['nom']} (NCI: {$c['nci']})\n";
     }
 
     echo "\nDonnées de test insérées avec succès!\n";
     echo "\n=== Citoyens de test disponibles ===\n";
     
-    foreach ($citoyens as $citoyen) {
-        echo "NCI: {$citoyen['nci']} - {$citoyen['prenom']} {$citoyen['nom']}\n";
-    }
+    foreach ($citoyen as $c) {
+    echo "NCI: {$c['nci']} - {$c['prenom']} {$c['nom']}\n";
+}
     
     echo "\n=== Exemples de requêtes API ===\n";
     echo "GET /api/citoyen/nci/1987654321012\n";

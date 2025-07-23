@@ -1,5 +1,5 @@
 -- Migration pour créer la table citoyens
-CREATE TABLE IF NOT EXISTS citoyens (
+CREATE TABLE IF NOT EXISTS citoyen (
     id SERIAL PRIMARY KEY,
     nci VARCHAR(20) UNIQUE NOT NULL,
     nom VARCHAR(100) NOT NULL,
@@ -12,7 +12,7 @@ CREATE TABLE IF NOT EXISTS citoyens (
 );
 
 -- Index sur le NCI pour optimiser les recherches
-CREATE INDEX idx_citoyens_nci ON citoyens(nci);
+CREATE INDEX idx_citoyens_nci ON citoyen(nci);
 
 -- Trigger pour mettre à jour updated_at automatiquement
 CREATE OR REPLACE FUNCTION update_updated_at_column()

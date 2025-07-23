@@ -3,15 +3,23 @@ namespace App\Repository;
 
 use App\Core\Abstract\AbstractRepository;
 use pdo;
+use ReflectionClass;
 
 class JournalRepository extends AbstractRepository
 {
     protected \PDO $pdo;
     private static ?JournalRepository $journalRepository = null;
 
-    public function getInstance(){
+    // public function getInstance(){
+    //     if (self::$journalRepository === null) {
+    //         self::$journalRepository = new JournalRepository();
+    //     }
+    //     return self::$journalRepository;
+    // }
+      public static  function getInstance():JournalRepository{
         if (self::$journalRepository === null) {
-            self::$journalRepository = new JournalRepository();
+            $reflect = new ReflectionClass(self::class);
+            self::$journalRepository = $reflect->newInstance();
         }
         return self::$journalRepository;
     }
