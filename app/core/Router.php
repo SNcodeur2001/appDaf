@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Core;
 
 class Router
@@ -6,92 +7,122 @@ class Router
     private static array $routes = [];
     private static bool $routesLoaded = false;
 
-    public static function get(string $uri, $controllerOrCallback, ?string $action = null, array $middlewares = []): void
+    public static function get(string $path, string $controller = '', string $action = '', array $middlewares = [], $handler = null): void
     {
-        self::addRoute('GET', $uri, $controllerOrCallback, $action, $middlewares);
+        self::$routes['GET'][$path] = compact('controller', 'action', 'middlewares', 'handler');
     }
 
-    public static function post(string $uri, $controllerOrCallback, ?string $action = null, array $middlewares = []): void
+    public static function post(string $path, string $controller = '', string $action = '', array $middlewares = [], $handler = null): void
     {
-        self::addRoute('POST', $uri, $controllerOrCallback, $action, $middlewares);
-    }
-
-    private static function addRoute(string $method, string $uri, $controllerOrCallback, ?string $action, array $middlewares): void
-    {
-        if (is_callable($controllerOrCallback)) {
-            self::$routes[$method][$uri] = [
-                'callback' => $controllerOrCallback,
-                'middlewares' => $middlewares
-            ];
-        } else {
-            self::$routes[$method][$uri] = [
-                'controller' => $controllerOrCallback,
-                'action' => $action,
-                'middlewares' => $middlewares
-            ];
-        }
+        self::$routes['POST'][$path] = compact('controller', 'action', 'middlewares', 'handler');
     }
 
     public static function resolve(): void
     {
+        if (!self::$routesLoaded) {
+            self::loadRoutes();
+        }
 
         $uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
         $method = $_SERVER['REQUEST_METHOD'];
 
-        foreach (self::$routes[$method] ?? [] as $routeUri => $route) {
-            $pattern = preg_replace('#\{[a-zA-Z0-9_]+\}#', '([^/]+)', $routeUri);
+        if (isset(self::$routes[$method][$uri])) {
+            $route = self::$routes[$method][$uri];
 
-            if (preg_match('#^' . $pattern . '$#', $uri, $matches)) {
-                array_shift($matches);
+            if (!empty($route['middlewares'])) {
+                self::runMiddlewares($route['middlewares']);
+            }
 
-                
-
-                header('Content-Type: application/json');
-
-                // Cas 1 : Callback direct
-                if (isset($route['callback'])) {
-                    call_user_func_array($route['callback'], $matches);
-                    return;
-                }
-
-                // Cas 2 : Contrôleur + action
-                $controllerName = $route['controller'] ?? null;
-                $action = $route['action'] ?? null;
-
-                if (!$controllerName || !$action) {
-                    http_response_code(500);
-                    echo json_encode(['message' => 'Route mal configurée']);
-                    return;
-                }
-
-                // Injection manuelle si besoin
-                switch ($controllerName) {
-                    case 'App\Controller\CitoyenController':
-                        $repository = new \App\Repository\CitoyenRepository();
-                        $logger = new \App\Service\LoggerService();
-                        $service = new \App\Service\CitoyenService($repository, $logger);
-                        $controller = new $controllerName($service);
-                        break;
-
-                    default:
-                        $controller = new $controllerName();
-                        break;
-                }
-
-                call_user_func_array([$controller, $action], $matches);
+            // Si un handler anonyme est fourni
+            if (isset($route['handler']) && is_callable($route['handler'])) {
+                call_user_func($route['handler']);
                 return;
             }
-        }
 
-        // Aucun match
+            // Instanciation dynamique du contrôleur
+            $controllerName = $route['controller'];
+            $action = $route['action'];
+
+            if (!class_exists($controllerName)) {
+                self::respondNotFound("Contrôleur '$controllerName' introuvable.");
+                return;
+            }
+
+            $controller = new $controllerName();
+
+            if (!method_exists($controller, $action)) {
+                self::respondNotFound("Méthode '$action' introuvable dans le contrôleur.");
+                return;
+            }
+
+            $controller->$action();
+        } else {
+            self::respondNotFound("Endpoint non trouvé");
+        }
+    }
+
+    private static function respondNotFound(string $message = 'Endpoint non trouvé'): void
+    {
         http_response_code(404);
         header('Content-Type: application/json');
         echo json_encode([
             'data' => null,
             'statut' => 'error',
             'code' => 404,
-            'message' => 'Endpoint non trouvé'
+            'message' => $message
         ]);
     }
 
+    private static function runMiddlewares(array $middlewares): void
+    {
+        foreach ($middlewares as $middlewareName) {
+            switch ($middlewareName) {
+                case 'auth':
+                    self::runAuthMiddleware();
+                    break;
+                case 'guest':
+                    self::runGuestMiddleware();
+                    break;
+                default:
+                    throw new \Exception("Middleware '$middlewareName' non supporté.");
+            }
+        }
+    }
+
+    private static function runAuthMiddleware(): void
+    {
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
+
+        if (!isset($_SESSION['user']) || empty($_SESSION['user']['id'])) {
+            session_destroy();
+            header('Location: /');
+            exit();
+        }
+
+        if (isset($_SESSION['user']['statut_compte']) && $_SESSION['user']['statut_compte'] !== 'ACTIF') {
+            session_destroy();
+            header('Location: /?error=compte_inactif');
+            exit();
+        }
+    }
+
+    private static function runGuestMiddleware(): void
+    {
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
+
+        if (isset($_SESSION['user'])) {
+            header('Location: /dashboard');
+            exit();
+        }
+    }
+
+    private static function loadRoutes(): void
+    {
+        require_once dirname(__DIR__, 2) . '/routes/routes.php';
+        self::$routesLoaded = true;
+    }
 }
