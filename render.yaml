@@ -1,0 +1,10 @@
+services:
+  - type: web
+    name: appdaf
+    runtime: php
+    buildCommand: "./render-build.sh"
+    startCommand: "./render-start.sh"
+    envVars:
+      - key: PHP_VERSION
+        value: "8.2"
+    plan: free
