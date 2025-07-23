@@ -1,10 +1,40 @@
 services:
+  # Service PostgreSQL
+  - type: pserv
+    name: appdaf-postgres
+    runtime: docker
+    dockerfilePath: ./Dockerfile.postgres
+    envVars:
+      - key: POSTGRES_DB
+        value: "pgdbDaf"
+      - key: POSTGRES_USER
+        value: "pguserDaf"
+      - key: POSTGRES_PASSWORD
+        value: "pgpassword"
+    disk:
+      name: postgres-data
+      mountPath: /var/lib/postgresql/data
+      sizeGB: 1
+    plan: free
+
+  # Service Application PHP
   - type: web
     name: appdaf
-    runtime: php
-    buildCommand: "./render-build.sh"
-    startCommand: "./render-start.sh"
+    runtime: docker
+    dockerfilePath: ./Dockerfile
     envVars:
-      - key: PHP_VERSION
-        value: "8.2"
+      - key: PORT
+        value: "10000"
+      - key: DB_HOST
+        fromService:
+          type: pserv
+          name: appdaf-postgres
+      - key: DB_PORT
+        value: "5432"
+      - key: DB_NAME
+        value: "pgdbDaf"
+      - key: DB_USER
+        value: "pguserDaf"
+      - key: DB_PASSWORD
+        value: "pgpassword"
     plan: free

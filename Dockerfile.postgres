@@ -1,0 +1,12 @@
+FROM postgres:16
+
+# Variables d'environnement par défaut
+ENV POSTGRES_DB=pgdbDaf
+ENV POSTGRES_USER=pguserDaf
+ENV POSTGRES_PASSWORD=pgpassword
+
+# Exposer le port PostgreSQL
+EXPOSE 5432
+
+# Le point d'entrée par défaut de postgres gère tout
+CMD ["postgres"]
