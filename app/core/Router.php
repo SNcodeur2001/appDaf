@@ -2,7 +2,9 @@
 
 namespace App\Core;
 
-class Router
+use App\Core\Abstract\Singleton;
+
+class Router extends Singleton
 {
     private static array $routes = [];
     private static bool $routesLoaded = false;
@@ -27,32 +29,47 @@ class Router
 
     public static function resolve(): void
     {
-        // Charger les routes si pas encore fait
-        if (!self::$routesLoaded) {
-            self::loadRoutes();
-        }
-
         $uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
         $method = $_SERVER['REQUEST_METHOD'];
 
-        if (isset(self::$routes[$method][$uri])) {
-            $route = self::$routes[$method][$uri];
+        // Charger dynamiquement les routes à chaque requête
+        $routes = require dirname(__DIR__, 2) . '/routes/route.web.php';
+        foreach ($routes as $route) {
+            if (strtoupper($route['method']) !== $method) continue;
 
-            // ✨ Exécuter les middlewares AVANT le contrôleur
-            if (!empty($route['middlewares'])) {
-                self::runMiddlewares($route['middlewares']);
+            // Convertir le path en regex si paramètre {xxx}
+            $pattern = preg_replace('#\{([^/]+)\}#', '(?P<$1>[^/]+)', $route['path']);
+            $pattern = '#^' . $pattern . '$#';
+            if (preg_match($pattern, $uri, $matches)) {
+                // Si action est une closure
+                if (isset($route['action']) && is_callable($route['action'])) {
+                    $route['action']();
+                    return;
+                }
+                // Sinon, appel contrôleur via App::get
+                if (isset($route['controller']) && isset($route['action'])) {
+                    $controller = \App\Core\App::get($route['controller']);
+                    $params = [];
+                    // Extraire les paramètres nommés
+                    foreach ($matches as $key => $value) {
+                        if (!is_int($key)) {
+                            $params[] = $value;
+                        }
+                    }
+                    call_user_func_array([$controller, $route['action']], $params);
+                    return;
+                }
             }
-
-            $controllerName = $route['controller'];
-            $action = $route['action'];
-
-            $controller = new $controllerName();
-            $controller->$action();
-        } else {
-            // 404 - Route non trouvée
-            http_response_code(404);
-            require_once dirname(__DIR__, 2) . '/templates/404.php';
         }
+        // 404 - Route non trouvée (message en français)
+        http_response_code(404);
+        header('Content-Type: application/json');
+        echo json_encode([
+            'data' => null,
+            'statut' => 'erreur',
+            'code' => 404,
+            'message' => 'Point d\'accès non trouvé'
+        ]);
     }
 
     /**
@@ -123,9 +140,5 @@ class Router
         }
     }
 
-    private static function loadRoutes(): void
-    {
-        require_once dirname(__DIR__, 2) . '/routes/route.web.php';
-        self::$routesLoaded = true;
-    }
+    // Suppression de loadRoutes car les routes sont chargées dynamiquement
 }

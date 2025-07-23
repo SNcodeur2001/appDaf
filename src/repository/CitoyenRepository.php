@@ -27,7 +27,8 @@ class CitoyenRepository extends AbstractRepository
                 return null;
             }
 
-            $citoyen = new Citoyen(
+            $reflection = new \ReflectionClass(Citoyen::class);
+            $citoyen = $reflection->newInstance(
                 $result['nci'],
                 $result['nom'],
                 $result['prenom'],
@@ -95,7 +96,8 @@ class CitoyenRepository extends AbstractRepository
             
             $citoyens = [];
             while ($result = $stmt->fetch()) {
-                $citoyens[] = new Citoyen(
+                $reflection = new \ReflectionClass(Citoyen::class);
+                $citoyens[] = $reflection->newInstance(
                     $result['nci'],
                     $result['nom'],
                     $result['prenom'],

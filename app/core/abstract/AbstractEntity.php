@@ -12,8 +12,8 @@ abstract class AbstractEntity
     abstract public function toArray(): array;
 
     //methode d'instance applique sur un objet
-    public function toJson(Object $object): string
+    public function toJson(): string
     {
-        return json_encode($this->toArray($object));
+        return json_encode($this->toArray());
     }
 }

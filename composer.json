@@ -13,6 +13,7 @@
       "App\\Enum\\": "src/enum/"
     }
   },
+  "license": "proprietary",
   "authors": [
     {
       "name": "mapathe ndiaye"
@@ -21,11 +22,11 @@
   "require": {
     "vlucas/phpdotenv": "^5.6",
     "twilio/sdk": "^8.6",
-    "symfony/yaml": "^6.0"
+    "symfony/yaml": "^7.3"
   },
   "scripts": {
     "database:migrate": "php migrations/migration.php --reset",
     "seeder:migrate": "php seeders/seeder.php --reset",
-    "start": "php -S localhost:8000 -t public"
+    "start": "php -S localhost:8081 -t public"
   }
 }

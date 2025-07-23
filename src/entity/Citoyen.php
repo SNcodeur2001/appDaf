@@ -2,7 +2,9 @@
 
 namespace App\Entity;
 
-class Citoyen
+use App\Core\Abstract\AbstractEntity;
+
+class Citoyen extends AbstractEntity
 {
     private ?int $id;
     private string $nci;
@@ -125,12 +127,37 @@ class Citoyen
     public function toArray(): array
     {
         return [
+            'id' => $this->id,
             'nci' => $this->nci,
             'nom' => $this->nom,
             'prenom' => $this->prenom,
-            'date' => $this->dateNaissance,
-            'lieu' => $this->lieuNaissance,
-            'url_photo_identite' => $this->urlPhotoIdentite
+            'dateNaissance' => $this->dateNaissance,
+            'lieuNaissance' => $this->lieuNaissance,
+            'urlPhotoIdentite' => $this->urlPhotoIdentite,
+            'createdAt' => $this->createdAt?->format('Y-m-d H:i:s'),
+            'updatedAt' => $this->updatedAt?->format('Y-m-d H:i:s')
         ];
+    }
+
+    public static function toObject(array $tableau): static
+    {
+        $citoyen = new static(
+            $tableau['nci'] ?? '',
+            $tableau['nom'] ?? '',
+            $tableau['prenom'] ?? '',
+            $tableau['dateNaissance'] ?? '',
+            $tableau['lieuNaissance'] ?? '',
+            $tableau['urlPhotoIdentite'] ?? null,
+            $tableau['id'] ?? null
+        );
+        
+        if (isset($tableau['createdAt'])) {
+            $citoyen->createdAt = new \DateTime($tableau['createdAt']);
+        }
+        if (isset($tableau['updatedAt'])) {
+            $citoyen->updatedAt = new \DateTime($tableau['updatedAt']);
+        }
+        
+        return $citoyen;
     }
 }

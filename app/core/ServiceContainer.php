@@ -2,26 +2,19 @@
 
 namespace App\Core;
 
+use App\Core\Abstract\Singleton;
 use Symfony\Component\Yaml\Yaml;
 
-class ServiceContainer
+class ServiceContainer extends Singleton
 {
-    private static ?ServiceContainer $instance = null;
     private array $services = [];
     private array $singletons = [];
     private array $config = [];
 
-    private function __construct()
+    protected function __construct()
     {
+        parent::__construct();
         $this->loadConfiguration();
-    }
-
-    public static function getInstance(): ServiceContainer
-    {
-        if (self::$instance === null) {
-            self::$instance = new ServiceContainer();
-        }
-        return self::$instance;
     }
 
     private function loadConfiguration(): void

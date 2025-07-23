@@ -1,21 +1,19 @@
 <?php
 namespace App\Controller;
 
-class JournalController
+use App\Core\Abstract\AbstractController;
+
+class JournalController extends AbstractController
 {
-    private static ?JournalController $journalController = null;
-    // Autres méthodes spécifiques au citoyen...
-
-    public function getInstance(){
-        if (self::$journalController === null) {
-            self::$journalController = new JournalController();
-        }
-        return self::$journalController;
-    }
-    private function __construct()
+    protected function __construct()
     {
-        
+        parent::__construct();
     }
 
-    // Autres méthodes spécifiques au citoyen...
+    public function index() {}
+    public function store() {}
+    public function create() {}
+    public function destroy() {}
+    public function show() {}
+    public function edit() {}
 }

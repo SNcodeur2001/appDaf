@@ -2,6 +2,7 @@
 namespace App\Controller;
 
 use App\Core\Abstract\AbstractController;
+use App\Core\Abstract\Singleton;
 use App\Service\CitoyenService;
 
 class CitoyenController extends AbstractController
@@ -10,7 +11,6 @@ class CitoyenController extends AbstractController
 
     public function __construct(CitoyenService $citoyenService)
     {
-        parent::__construct();
         $this->citoyenService = $citoyenService;
     }
 
@@ -69,6 +69,20 @@ class CitoyenController extends AbstractController
                 }
             }
 
+            // Vérification de l'unicité du NCI
+            $existingCitoyen = $this->citoyenService->getAllCitoyens();
+            foreach ($existingCitoyen as $citoyen) {
+                if ($citoyen->getNci() === $input['nci']) {
+                    $this->renderJson(
+                        null,
+                        "error",
+                        400,
+                        "Un citoyen avec ce NCI existe déjà"
+                    );
+                    return;
+                }
+            }
+
             $citoyen = $this->citoyenService->createCitoyen($input);
             
             $this->renderJson(
@@ -76,13 +90,6 @@ class CitoyenController extends AbstractController
                 "success",
                 201,
                 "Citoyen créé avec succès"
-            );
-        } catch (\InvalidArgumentException $e) {
-            $this->renderJson(
-                null,
-                "error",
-                400,
-                $e->getMessage()
             );
         } catch (\Exception $e) {
             $this->renderJson(

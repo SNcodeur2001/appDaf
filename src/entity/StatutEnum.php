@@ -5,5 +5,5 @@ namespace App\Entity;
 enum StatutEnum: string
 {
     case Success = 'success';
-    case echec = 'echec';
+    case Echec = 'echec';
 }

@@ -64,14 +64,14 @@ composer run seeder:migrate -- --reset
 
 ### Base URL
 ```
-http://localhost:8081
+http://localhost:8083
 ```
 
 ### Endpoints
 
 #### 1. Vérification de l'état de l'API
 ```http
-GET /api/health
+GET /health
 ```
 
 **Réponse:**
@@ -89,32 +89,32 @@ GET /api/health
 
 #### 2. Rechercher un citoyen par NCI (URL Parameter)
 ```http
-GET /api/citoyen/nci/{nci}
+GET /citoyen/nci/{nci}
 ```
 
 **Exemple:**
 ```http
-GET /api/citoyen/nci/1987654321012
+GET /citoyen/nci/1987654321012
 ```
 
 #### 3. Rechercher un citoyen par NCI (Query Parameter)
 ```http
-GET /api/citoyen?nci={nci}
+GET /citoyen?nci={nci}
 ```
 
 **Exemple:**
 ```http
-GET /api/citoyen?nci=1987654321012
+GET /citoyen?nci=1987654321012
 ```
 
 #### 4. Lister tous les citoyens
 ```http
-GET /api/citoyens
+GET /citoyens
 ```
 
 #### 5. Créer un nouveau citoyen
 ```http
-POST /api/citoyens
+POST /citoyens
 Content-Type: application/json
 
 {
@@ -203,16 +203,16 @@ Vous pouvez tester l'API avec l'extension REST Client de VS Code :
 
 ```http
 ### Test de santé
-GET http://localhost:8081/api/health
+GET http://localhost:8083/health
 
 ### Recherche par NCI
-GET http://localhost:8081/api/citoyen/nci/1987654321012
+GET http://localhost:8083/citoyen/nci/1987654321012
 
 ### Recherche avec query parameter
-GET http://localhost:8081/api/citoyen?nci=1876543210987
+GET http://localhost:8083/citoyen?nci=1876543210987
 
 ### Créer un nouveau citoyen
-POST http://localhost:8081/api/citoyens
+POST http://localhost:8083/citoyens
 Content-Type: application/json
 
 {

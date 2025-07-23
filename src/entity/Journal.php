@@ -13,10 +13,18 @@ class Journal extends AbstractEntity
     private string $localisation;
     private StatutEnum $status;
     private string $codeHttp;
-    private Citoyen $citoyen;
+    private ?Citoyen $citoyen;
 
-  public function __construct(int $id, DateTime $date, int $heure, string $ipAdresse, string $localisation, StatutEnum $status, string $codeHttp)
-    {
+    public function __construct(
+        int $id,
+        DateTime $date,
+        int $heure,
+        string $ipAdresse,
+        string $localisation,
+        StatutEnum $status,
+        string $codeHttp,
+        ?Citoyen $citoyen = null
+    ) {
         $this->id = $id;
         $this->date = $date;
         $this->heure = $heure;
@@ -24,7 +32,7 @@ class Journal extends AbstractEntity
         $this->localisation = $localisation;
         $this->status = $status;
         $this->codeHttp = $codeHttp;
-        $this->citoyen = new Citoyen(  );
+        $this->citoyen = $citoyen;
     }
 
     public function getId(): int
@@ -59,12 +67,14 @@ class Journal extends AbstractEntity
         return $this->codeHttp;
     }
 
-    public function getCitoyen(): Citoyen
+
+    public function getCitoyen(): ?Citoyen
     {
         return $this->citoyen;
     }
 
-    public function setCitoyen(Citoyen $citoyen): void
+
+    public function setCitoyen(?Citoyen $citoyen): void
     {
         $this->citoyen = $citoyen;
     }
@@ -113,25 +123,27 @@ class Journal extends AbstractEntity
             'localisation' => $this->localisation,
             'status' => $this->status->value,
             'codeHttp' => $this->codeHttp,
-            'citoyen' => $this->citoyen->toArray()
+            'citoyen' => $this->citoyen ? $this->citoyen->toArray() : null
         ];
     }
 
-    public static function toObject(array $tableau): static{
-        $journal = new static(
+    public static function toObject(array $tableau): static {
+        $citoyen = null;
+        if (isset($tableau['citoyen']) && is_array($tableau['citoyen'])) {
+            $citoyen = Citoyen::toObject($tableau['citoyen']);
+        }
+        $reflection = new \ReflectionClass(static::class);
+        $dateReflection = new \ReflectionClass(\DateTime::class);
+        $journal = $reflection->newInstance(
             $tableau['id'] ?? 0,
-            new DateTime($tableau['date'] ?? 'now'),
+            $dateReflection->newInstance($tableau['date'] ?? 'now'),
             $tableau['heure'] ?? 0,
             $tableau['ipAdresse'] ?? '',
             $tableau['localisation'] ?? '',
             StatutEnum::from($tableau['status'] ?? StatutEnum::Success->value),
-            $tableau['codeHttp'] ?? ''
+            $tableau['codeHttp'] ?? '',
+            $citoyen
         );
-
-        if (isset($tableau['citoyen'])) {
-            $journal->setCitoyen(Citoyen::toObject($tableau['citoyen']));
-        }
-
         return $journal;
     }
     

@@ -12,17 +12,19 @@ class Database
     {
         if (self::$pdo === null) {
             // Lire les variables depuis .env
-            $driver = defined('DB_DRIVER') ? DB_DRIVER : 'mysql';
-            $host = defined('DB_HOST') ? DB_HOST : 'localhost';
-            $dbname = defined('DB_NAME') ? DB_NAME : '';
-            $dsn = defined('DSN') ? DSN : "$driver:host=$host;dbname=$dbname;charset=utf8mb4";
-            $port = defined('DB_PORT') ? DB_PORT : 3306;
-            $user = defined('DB_USER') ? DB_USER : '';
-            $pass = defined('DB_PASSWORD') ? DB_PASSWORD : '';
+            $driver = $_ENV['DB_DRIVER'] ?? 'pgsql';
+            $host = $_ENV['DB_HOST'] ?? 'localhost';
+            $dbname = $_ENV['DB_NAME'] ?? 'pgdbDaf';
+            $port = $_ENV['DB_PORT'] ?? 5433;
+            $user = $_ENV['DB_USER'] ?? 'pguserDaf';
+            $pass = $_ENV['DB_PASSWORD'] ?? 'pgpassword';
+            
+            $dsn = "$driver:host=$host;port=$port;dbname=$dbname";
 
             try {
                 self::$pdo = new PDO($dsn, $user, $pass, [
-                    PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION
+                    PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+                    PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC
                 ]);
             } catch (PDOException $e) {
                 die("Erreur de connexion : " . $e->getMessage());

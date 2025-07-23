@@ -2,10 +2,11 @@
 
 namespace App\Service;
 
+use App\Core\Abstract\Singleton;
 use App\Entity\Citoyen;
 use App\Repository\CitoyenRepository;
 
-class CitoyenService
+class CitoyenService extends Singleton
 {
     private CitoyenRepository $citoyenRepository;
     private LoggerService $loggerService;
@@ -41,34 +42,24 @@ class CitoyenService
 
     public function createCitoyen(array $data): Citoyen
     {
-        try {
-            // Vérifier si le NCI existe déjà
-            $existingCitoyen = $this->citoyenRepository->findByNci($data['nci']);
-            if ($existingCitoyen) {
-                throw new \InvalidArgumentException("Un citoyen avec ce NCI existe déjà");
-            }
+        $reflection = new \ReflectionClass(Citoyen::class);
+        $citoyen = $reflection->newInstance(
+            $data['nci'],
+            $data['nom'],
+            $data['prenom'],
+            $data['date_naissance'],
+            $data['lieu_naissance'],
+            $data['url_photo_identite'] ?? null
+        );
 
-            $citoyen = new Citoyen(
-                $data['nci'],
-                $data['nom'],
-                $data['prenom'],
-                $data['date_naissance'],
-                $data['lieu_naissance'],
-                $data['url_photo_identite'] ?? null
-            );
-
-            $success = $this->citoyenRepository->save($citoyen);
-            
-            if (!$success) {
-                throw new \Exception("Erreur lors de la création du citoyen");
-            }
-
-            $this->logRequest('Success', $data['nci'], 0, '/api/citoyen', 'POST');
-            return $citoyen;
-        } catch (\Exception $e) {
+        $success = $this->citoyenRepository->save($citoyen);
+        if (!$success) {
             $this->logRequest('Échec', $data['nci'] ?? null, 0, '/api/citoyen', 'POST');
-            throw $e;
+            throw new \Exception("Erreur lors de la création du citoyen");
         }
+
+        $this->logRequest('Success', $data['nci'], 0, '/api/citoyen', 'POST');
+        return $citoyen;
     }
 
     public function getAllCitoyens(): array

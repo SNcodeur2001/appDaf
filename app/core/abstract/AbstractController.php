@@ -2,13 +2,15 @@
 
 namespace App\Core\Abstract;
 use  App\Core\Session;
-abstract class AbstractController
+
+abstract class AbstractController extends Singleton
 {
 
     // protected Session $session;
 
-    public function __construct()
+    protected function __construct()
     {
+        parent::__construct();
         // $this->session = Session::getInstance();
     }
 

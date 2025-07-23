@@ -2,23 +2,16 @@
 
 namespace App\Core;
 
-class Session
-{
-    private static ?Session $session = null;
+use App\Core\Abstract\Singleton;
 
-    private function __construct()
+class Session extends Singleton
+{
+    protected function __construct()
     {
+        parent::__construct();
         if (session_status() === PHP_SESSION_NONE) {
             session_start();
         }
-    }
-
-    public static function getInstance(): Session
-    {
-        if (self::$session === null) {
-            self::$session = new Session();
-        }
-        return self::$session;
     }
 
     public function set(string $key, $value)

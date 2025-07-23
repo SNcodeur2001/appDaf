@@ -2,12 +2,17 @@
 
 namespace App\Service;
 
-use App\Core\Abstract\AbstractRepository;
-use PDO;
-use PDOException;
+use App\Core\Abstract\Singleton;
+use App\Repository\LoggerRepository;
 
-class LoggerService extends AbstractRepository
+class LoggerService extends Singleton
 {
+    private LoggerRepository $loggerRepository;
+
+    public function __construct(LoggerRepository $loggerRepository)
+    {
+        $this->loggerRepository = $loggerRepository;
+    }
 
     public function logRequest(
         string $statut,
@@ -17,28 +22,21 @@ class LoggerService extends AbstractRepository
         ?string $method = null,
         ?int $responseTime = null
     ): void {
+        $ipAddress = $this->getClientIpAddress();
+        $userAgent = $_SERVER['HTTP_USER_AGENT'] ?? null;
+        $data = [
+            'statut' => $statut,
+            'nci_recherche' => $nciRecherche,
+            'localisation' => $localisation,
+            'endpoint' => $endpoint,
+            'method' => $method,
+            'user_agent' => $userAgent,
+            'ip_address' => $ipAddress,
+            'response_time' => $responseTime,
+        ];
         try {
-            $ipAddress = $this->getClientIpAddress();
-            $userAgent = $_SERVER['HTTP_USER_AGENT'] ?? null;
-
-            $stmt = $this->pdo->prepare("
-                INSERT INTO request_logs 
-                (date_heure, localisation, ip_address, statut, nci_recherche, endpoint, method, user_agent, response_time_ms) 
-                VALUES (CURRENT_TIMESTAMP, :localisation, :ip_address, :statut, :nci_recherche, :endpoint, :method, :user_agent, :response_time)
-            ");
-
-            $stmt->bindParam(':localisation', $localisation, PDO::PARAM_STR);
-            $stmt->bindParam(':ip_address', $ipAddress, PDO::PARAM_STR);
-            $stmt->bindParam(':statut', $statut, PDO::PARAM_STR);
-            $stmt->bindParam(':nci_recherche', $nciRecherche, PDO::PARAM_STR);
-            $stmt->bindParam(':endpoint', $endpoint, PDO::PARAM_STR);
-            $stmt->bindParam(':method', $method, PDO::PARAM_STR);
-            $stmt->bindParam(':user_agent', $userAgent, PDO::PARAM_STR);
-            $stmt->bindParam(':response_time', $responseTime, PDO::PARAM_INT);
-
-            $stmt->execute();
-        } catch (PDOException $e) {
-            // En cas d'erreur de log, on ne doit pas faire échouer la requête principale
+            $this->loggerRepository->insertLog($data);
+        } catch (\Exception $e) {
             error_log("Erreur lors de la journalisation: " . $e->getMessage());
         }
     }
@@ -66,19 +64,6 @@ class LoggerService extends AbstractRepository
 
     public function getRequestLogs(int $limit = 100, int $offset = 0): array
     {
-        try {
-            $stmt = $this->pdo->prepare("
-                SELECT * FROM request_logs 
-                ORDER BY date_heure DESC 
-                LIMIT :limit OFFSET :offset
-            ");
-            $stmt->bindParam(':limit', $limit, PDO::PARAM_INT);
-            $stmt->bindParam(':offset', $offset, PDO::PARAM_INT);
-            $stmt->execute();
-
-            return $stmt->fetchAll();
-        } catch (PDOException $e) {
-            throw new \Exception("Erreur lors de la récupération des logs: " . $e->getMessage());
-        }
+        return $this->loggerRepository->getRequestLogs($limit, $offset);
     }
 }

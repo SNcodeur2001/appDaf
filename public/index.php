@@ -22,8 +22,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 }
 
 try {
-    // Inclure le système de routage
-    require_once __DIR__ . '/../routes/route.web.php';
+    // Initialiser le conteneur IoC
+    \App\Core\App::initialize();
+    
+    // Lancer le système de routage
+    \App\Core\Router::resolve();
 } catch (Exception $e) {
     header('Content-Type: application/json');
     http_response_code(500);
