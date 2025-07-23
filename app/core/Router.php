@@ -17,29 +17,32 @@ class Router
         self::$routes['POST'][$path] = compact('controller', 'action', 'middlewares', 'handler');
     }
 
-    public static function resolve(): void
-    {
-        if (!self::$routesLoaded) {
-            self::loadRoutes();
-        }
+public static function resolve(): void
+{
+    if (!self::$routesLoaded) {
+        self::loadRoutes();
+    }
 
-        $uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
-        $method = $_SERVER['REQUEST_METHOD'];
+    $uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
+    $method = $_SERVER['REQUEST_METHOD'];
 
-        if (isset(self::$routes[$method][$uri])) {
-            $route = self::$routes[$method][$uri];
+    foreach (self::$routes[$method] ?? [] as $routePath => $route) {
+        $pattern = preg_replace('#\{[\w]+\}#', '([\w\-]+)', $routePath);
+        $pattern = "#^" . $pattern . "$#";
+
+        if (preg_match($pattern, $uri, $matches)) {
+            array_shift($matches); // on retire le match complet
 
             if (!empty($route['middlewares'])) {
                 self::runMiddlewares($route['middlewares']);
             }
 
-            // Si un handler anonyme est fourni
+            // Handler anonyme ?
             if (isset($route['handler']) && is_callable($route['handler'])) {
-                call_user_func($route['handler']);
+                call_user_func_array($route['handler'], $matches);
                 return;
             }
 
-            // Instanciation dynamique du contrôleur
             $controllerName = $route['controller'];
             $action = $route['action'];
 
@@ -55,11 +58,14 @@ class Router
                 return;
             }
 
-            $controller->$action();
-        } else {
-            self::respondNotFound("Endpoint non trouvé");
+            call_user_func_array([$controller, $action], $matches);
+            return;
         }
     }
+
+    self::respondNotFound("Endpoint non trouvé");
+}
+
 
     private static function respondNotFound(string $message = 'Endpoint non trouvé'): void
     {
