@@ -3,6 +3,15 @@
 use App\Controller\CompteController;
 use App\Controller\SecurityController;
 use App\Controller\CitoyenController;
+use App\Service\CitoyenService;
+use App\Service\LoggerService;
+use App\Repository\CitoyenRepository;
+
+// Instanciation des dépendances
+$citoyenRepository = new CitoyenRepository();
+$loggerService = new LoggerService();
+$citoyenService = new CitoyenService($citoyenRepository, $loggerService);
+$citoyenController = new CitoyenController($citoyenService);
 
 // Récupération du chemin sans query string
 $path = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
@@ -23,23 +32,23 @@ switch (true) {
 
     // GET /api/citoyen?nci=XXX
     case $method === 'GET' && $path === '/api/citoyen' && isset($_GET['nci']):
-        CitoyenController::getInstance()->show();
+        $citoyenController->show();
         break;
 
     // GET /api/citoyen/nci/{nci}
     case $method === 'GET' && preg_match('#^/api/citoyen/nci/([^/]+)$#', $path, $matches):
         $nci = $matches[1];
-        CitoyenController::getInstance()->findByNci($nci);
+        $citoyenController->findByNci($nci);
         break;
 
     // GET /api/citoyens
     case $method === 'GET' && $path === '/api/citoyens':
-        CitoyenController::getInstance()->index();
+        $citoyenController->index();
         break;
 
     // POST /api/citoyens
     case $method === 'POST' && $path === '/api/citoyens':
-        CitoyenController::getInstance()->store();
+        $citoyenController->store();
         break;
 
     // Si aucune route ne correspond
