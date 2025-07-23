@@ -66,12 +66,7 @@ class CitoyenService
 
     public function getAllCitoyens(): array
     {
-        try {
-            return $this->citoyenRepository->findAll();
-        } catch (\Exception $e) {
-            $this->logRequest('Échec', null, 0, '/api/citoyens', 'GET');
-            throw $e;
-        }
+        return $this->citoyenRepository->findAll();
     }
 
     private function logRequest(string $statut, ?string $nci, int $responseTime, ?string $endpoint = null, ?string $method = null): void
