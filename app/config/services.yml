@@ -5,6 +5,10 @@ services:
     CitoyenRepository:
       class: App\Repository\CitoyenRepository
       singleton: true
+    
+    LoggerRepository:
+      class: App\Repository\LoggerRepository
+      singleton: true
   
   # Services
   services:

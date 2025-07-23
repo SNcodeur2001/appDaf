@@ -3,13 +3,14 @@
 namespace App\Service;
 
 use App\Core\Abstract\Singleton;
-use App\Repository\LoggerRepository;
+use App\Repository\ILoggerRepository;
+use App\Service\ILoggerService;
 
-class LoggerService extends Singleton
+class LoggerService extends Singleton implements ILoggerService
 {
-    private LoggerRepository $loggerRepository;
+    private ILoggerRepository $loggerRepository;
 
-    public function __construct(LoggerRepository $loggerRepository)
+    public function __construct(ILoggerRepository $loggerRepository)
     {
         $this->loggerRepository = $loggerRepository;
     }
@@ -41,7 +42,7 @@ class LoggerService extends Singleton
         }
     }
 
-    private function getClientIpAddress(): string
+    public function getClientIpAddress(): string
     {
         $ipKeys = ['HTTP_X_FORWARDED_FOR', 'HTTP_X_REAL_IP', 'HTTP_CLIENT_IP', 'REMOTE_ADDR'];
         

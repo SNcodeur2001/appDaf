@@ -42,6 +42,9 @@ class ServiceProvider
         
         // Enregistrer les controllers
         $this->registerCategory('controllers');
+        
+        // Enregistrer les interfaces avec leurs implémentations
+        $this->registerInterfaces();
     }
 
     /**
@@ -84,6 +87,20 @@ class ServiceProvider
         }
         
         return [];
+    }
+
+    /**
+     * Enregistrer les interfaces avec leurs implémentations
+     */
+    private function registerInterfaces(): void
+    {
+        // Repositories
+        $this->container->singleton(\App\Repository\ICitoyenRepository::class, \App\Repository\CitoyenRepository::class);
+        $this->container->singleton(\App\Repository\ILoggerRepository::class, \App\Repository\LoggerRepository::class);
+        
+        // Services
+        $this->container->singleton(\App\Service\ICitoyenService::class, \App\Service\CitoyenService::class);
+        $this->container->singleton(\App\Service\ILoggerService::class, \App\Service\LoggerService::class);
     }
 
     /**

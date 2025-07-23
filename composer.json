@@ -22,7 +22,8 @@
   "require": {
     "vlucas/phpdotenv": "^5.6",
     "twilio/sdk": "^8.6",
-    "symfony/yaml": "^7.3"
+    "symfony/yaml": "^7.3",
+    "cloudinary/cloudinary_php": "^2.0"
   },
   "scripts": {
     "database:migrate": "php migrations/migration.php --reset",

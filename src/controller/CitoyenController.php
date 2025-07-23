@@ -21,19 +21,9 @@ class CitoyenController extends AbstractController
             $citoyens = $this->citoyenService->getAllCitoyens();
             $data = array_map(fn($citoyen) => $citoyen->toArray(), $citoyens);
             
-            $this->renderJson(
-                $data,
-                "success",
-                200,
-                "Liste des citoyens récupérée avec succès"
-            );
+            $this->renderJson( $data, "success", 200, "Liste des citoyens récupérée avec succès"  );
         } catch (\Exception $e) {
-            $this->renderJson(
-                null,
-                "error",
-                500,
-                "Erreur lors de la récupération des citoyens: " . $e->getMessage()
-            );
+            $this->renderJson(  null, "error", 500, "Erreur lors de la récupération des citoyens: " . $e->getMessage() );
         }
     }
 
@@ -46,12 +36,7 @@ class CitoyenController extends AbstractController
             $input = json_decode(file_get_contents('php://input'), true);
             
             if (!$input) {
-                $this->renderJson(
-                    null,
-                    "error",
-                    400,
-                    "Données JSON invalides"
-                );
+                $this->renderJson( null,  "error",  400, "Données JSON invalides" );
                 return;
             }
 

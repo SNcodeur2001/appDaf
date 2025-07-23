@@ -4,14 +4,15 @@ namespace App\Service;
 
 use App\Core\Abstract\Singleton;
 use App\Entity\Citoyen;
-use App\Repository\CitoyenRepository;
-
-class CitoyenService extends Singleton
+use App\Service\ICitoyenService;
+use App\Service\ILoggerService;
+use App\Repository\ICitoyenRepository;
+class CitoyenService extends Singleton implements ICitoyenService
 {
-    private CitoyenRepository $citoyenRepository;
-    private LoggerService $loggerService;
+    private ICitoyenRepository $citoyenRepository;
+    private ILoggerService $loggerService;
 
-    public function __construct(CitoyenRepository $citoyenRepository, LoggerService $loggerService)
+    public function __construct(ICitoyenRepository $citoyenRepository, ILoggerService $loggerService)
     {
         $this->citoyenRepository = $citoyenRepository;
         $this->loggerService = $loggerService;
@@ -24,7 +25,7 @@ class CitoyenService extends Singleton
         try {
             $citoyen = $this->citoyenRepository->findByNci($nci);
             
-            $responseTime = (microtime(true) - $startTime) * 1000;
+            $responseTime = (int)((microtime(true) - $startTime) * 1000);
             
             if ($citoyen) {
                 $this->logRequest('Success', $nci, $responseTime);
@@ -34,7 +35,7 @@ class CitoyenService extends Singleton
                 return null;
             }
         } catch (\Exception $e) {
-            $responseTime = (microtime(true) - $startTime) * 1000;
+            $responseTime = (int)((microtime(true) - $startTime) * 1000);
             $this->logRequest('Échec', $nci, $responseTime);
             throw $e;
         }
@@ -42,6 +43,7 @@ class CitoyenService extends Singleton
 
     public function createCitoyen(array $data): Citoyen
     {
+        $startTime = microtime(true);
         $reflection = new \ReflectionClass(Citoyen::class);
         $citoyen = $reflection->newInstance(
             $data['nci'],
@@ -53,32 +55,38 @@ class CitoyenService extends Singleton
         );
 
         $success = $this->citoyenRepository->save($citoyen);
+        $responseTime = (int)((microtime(true) - $startTime) * 1000);
         if (!$success) {
-            $this->logRequest('Échec', $data['nci'] ?? null, 0, '/api/citoyen', 'POST');
+            $this->logRequest('Échec', $data['nci'] ?? null, $responseTime, '/api/citoyen', 'POST');
             throw new \Exception("Erreur lors de la création du citoyen");
         }
 
-        $this->logRequest('Success', $data['nci'], 0, '/api/citoyen', 'POST');
+        $this->logRequest('Success', $data['nci'], $responseTime, '/api/citoyen', 'POST');
         return $citoyen;
     }
 
     public function getAllCitoyens(): array
     {
+        $startTime = microtime(true);
         try {
-            return $this->citoyenRepository->findAll();
+            $result = $this->citoyenRepository->findAll();
+            $responseTime = (int)((microtime(true) - $startTime) * 1000);
+            $this->logRequest('Success', null, $responseTime, '/api/citoyens', 'GET');
+            return $result;
         } catch (\Exception $e) {
-            $this->logRequest('Échec', null, 0, '/api/citoyens', 'GET');
+            $responseTime = (int)((microtime(true) - $startTime) * 1000);
+            $this->logRequest('Échec', null, $responseTime, '/api/citoyens', 'GET');
             throw $e;
         }
     }
 
-    private function logRequest(string $statut, ?string $nci, int $responseTime, ?string $endpoint = null, ?string $method = null): void
+    public function logRequest(string $statut, ?string $nciRecherche = null, ?int $responseTime = null, ?string $endpoint = null, ?string $method = null): void
     {
         $this->loggerService->logRequest(
             $statut,
-            $nci,
+            $nciRecherche,
             null,
-            $endpoint ?? '/api/citoyen/' . $nci,
+            $endpoint ?? '/api/citoyen/' . $nciRecherche,
             $method ?? $_SERVER['REQUEST_METHOD'] ?? 'GET',
             $responseTime
         );

@@ -6,8 +6,9 @@ use App\Core\Abstract\AbstractRepository;
 use App\Entity\Citoyen;
 use PDO;
 use PDOException;
+use App\Repository\ICitoyenRepository;
 
-class CitoyenRepository extends AbstractRepository
+class CitoyenRepository extends AbstractRepository implements ICitoyenRepository
 {
 
     public function findByNci(string $nci): ?Citoyen

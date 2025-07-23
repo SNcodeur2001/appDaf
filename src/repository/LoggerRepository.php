@@ -5,8 +5,9 @@ namespace App\Repository;
 use App\Core\Abstract\AbstractRepository;
 use PDO;
 use PDOException;
+use App\Repository\ILoggerRepository;
 
-class LoggerRepository extends AbstractRepository
+class LoggerRepository extends AbstractRepository implements ILoggerRepository
 {
     public function insertLog(array $data): void
     {

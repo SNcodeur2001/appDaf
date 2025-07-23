@@ -2,6 +2,9 @@
 
 require_once __DIR__ . '/../vendor/autoload.php';
 
+use Cloudinary\Cloudinary;
+use Cloudinary\Configuration\Configuration;
+
 // Charger les variables d'environnement
 $dotenv = Dotenv\Dotenv::createImmutable(__DIR__ . '/..');
 $dotenv->load();
@@ -31,7 +34,18 @@ try {
         echo "Données supprimées.\n";
     }
 
-    // Données de test pour les citoyens
+    $cloudinary = new Cloudinary([
+        'cloud' => [
+            'cloud_name' => $_ENV['CLOUDINARY_CLOUD_NAME'],
+            'api_key'    => $_ENV['CLOUDINARY_API_KEY'],
+            'api_secret' => $_ENV['CLOUDINARY_API_SECRET'],
+        ],
+        'url' => [
+            'secure' => true
+        ]
+    ]);
+
+    // Données de test pour les citoyens (ajoute le nom du fichier image réel dans 'image')
     $citoyens = [
         [
             'nci' => '1987654321012',
@@ -39,7 +53,7 @@ try {
             'prenom' => 'Aminata',
             'date_naissance' => '1990-03-15',
             'lieu_naissance' => 'Dakar',
-            'url_photo_identite' => 'https://example-cloud.com/photos/1987654321012.jpg'
+            'image' => 'IMG_7946.JPG'
         ],
         [
             'nci' => '1876543210987',
@@ -47,7 +61,7 @@ try {
             'prenom' => 'Moussa',
             'date_naissance' => '1985-07-22',
             'lieu_naissance' => 'Saint-Louis',
-            'url_photo_identite' => 'https://example-cloud.com/photos/1876543210987.jpg'
+            'image' => 'WhatsApp Image 2025-04-06 at 6.16.42 PM.jpeg'
         ],
         [
             'nci' => '1765432109876',
@@ -55,7 +69,7 @@ try {
             'prenom' => 'Fatou',
             'date_naissance' => '1992-11-08',
             'lieu_naissance' => 'Thiès',
-            'url_photo_identite' => 'https://example-cloud.com/photos/1765432109876.jpg'
+            'image' => 'IMG_7946.JPG'
         ],
         [
             'nci' => '1654321098765',
@@ -63,7 +77,7 @@ try {
             'prenom' => 'Ibrahima',
             'date_naissance' => '1988-05-13',
             'lieu_naissance' => 'Kaolack',
-            'url_photo_identite' => 'https://example-cloud.com/photos/1654321098765.jpg'
+            'image' => 'WhatsApp Image 2025-04-06 at 6.16.42 PM.jpeg'
         ],
         [
             'nci' => '1543210987654',
@@ -71,7 +85,15 @@ try {
             'prenom' => 'Awa',
             'date_naissance' => '1995-09-27',
             'lieu_naissance' => 'Ziguinchor',
-            'url_photo_identite' => 'https://example-cloud.com/photos/1543210987654.jpg'
+            'image' => 'IMG_7946.JPG'
+        ],
+        [
+            'nci' => '9876543210123',
+            'nom' => 'DIALLO',
+            'prenom' => 'Mouhamadou',
+            'date_naissance' => '1988-12-01',
+            'lieu_naissance' => 'Tambacounda',
+            'image' => 'WhatsApp Image 2025-04-06 at 6.16.42 PM.jpeg'
         ]
     ];
 
@@ -83,8 +105,31 @@ try {
     ");
 
     foreach ($citoyens as $citoyen) {
-        $stmt->execute($citoyen);
-        echo "Citoyen ajouté: {$citoyen['prenom']} {$citoyen['nom']} (NCI: {$citoyen['nci']})\n";
+        $localPath = __DIR__ . '/images/' . $citoyen['image'];
+        if (!file_exists($localPath)) {
+            echo "Image non trouvée pour {$citoyen['prenom']} {$citoyen['nom']} : $localPath\n";
+            continue;
+        }
+
+        // Upload sur Cloudinary
+        $uploadResult = $cloudinary->uploadApi()->upload($localPath, [
+            'folder' => 'appdaf/cni',
+            'public_id' => pathinfo($citoyen['image'], PATHINFO_FILENAME),
+            'overwrite' => true,
+            'resource_type' => 'image'
+        ]);
+        $citoyen['url_photo_identite'] = $uploadResult['secure_url'];
+
+        // Insertion en base
+        $stmt->execute([
+            'nci' => $citoyen['nci'],
+            'nom' => $citoyen['nom'],
+            'prenom' => $citoyen['prenom'],
+            'date_naissance' => $citoyen['date_naissance'],
+            'lieu_naissance' => $citoyen['lieu_naissance'],
+            'url_photo_identite' => $citoyen['url_photo_identite'],
+        ]);
+        echo "✔️ {$citoyen['prenom']} {$citoyen['nom']} ajouté avec image Cloudinary\n";
     }
 
     echo "\nDonnées de test insérées avec succès!\n";
