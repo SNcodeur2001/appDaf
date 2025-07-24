@@ -29,6 +29,7 @@ class Router extends Singleton
 
     public static function resolve(): void
     {
+        // Charger les routes si pas déjà fait 
         $uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
         $method = $_SERVER['REQUEST_METHOD'];
 
@@ -40,11 +41,13 @@ class Router extends Singleton
             // Convertir le path en regex si paramètre {xxx}
             $pattern = preg_replace('#\{([^/]+)\}#', '(?P<$1>[^/]+)', $route['path']);
             $pattern = '#^' . $pattern . '$#';
+            
             if (preg_match($pattern, $uri, $matches)) {
                 // Si action est une closure
                 if (isset($route['action']) && is_callable($route['action'])) {
                     $route['action']();
                     return;
+                    
                 }
                 // Sinon, appel contrôleur via App::get
                 if (isset($route['controller']) && isset($route['action'])) {
