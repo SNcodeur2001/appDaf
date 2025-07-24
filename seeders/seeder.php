@@ -15,6 +15,7 @@ try {
     $dbname = $_ENV['DB_NAME'] ?? 'pgdbDaf';
     $username = $_ENV['DB_USER'] ?? 'pguserDaf';
     $password = $_ENV['DB_PASSWORD'] ?? 'pgpassword';
+    $databaseurl = $_ENV['DATABASE_URL'] ?? '';
 
     $dsn = "pgsql:host=$host;port=$port;dbname=$dbname";
     $pdo = new PDO($dsn, $username, $password, [

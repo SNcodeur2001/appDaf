@@ -203,16 +203,16 @@ Vous pouvez tester l'API avec l'extension REST Client de VS Code :
 
 ```http
 ### Test de santé
-GET http://localhost:8083/health
+GET http://localhost:8081/health
 
 ### Recherche par NCI
-GET http://localhost:8083/citoyen/nci/1987654321012
+GET http://localhost:8081/citoyen/nci/1987654321012
 
 ### Recherche avec query parameter
-GET http://localhost:8083/citoyen?nci=1876543210987
+GET http://localhost:8081/citoyen?nci=1876543210987
 
 ### Créer un nouveau citoyen
-POST http://localhost:8083/citoyens
+POST http://localhost:8081/citoyens
 Content-Type: application/json
 
 {
