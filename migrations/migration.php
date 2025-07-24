@@ -7,12 +7,12 @@ $dotenv = Dotenv\Dotenv::createImmutable(__DIR__ . '/..');
 $dotenv->load();
 
 try {
-    $host = $_ENV['DB_HOST'] ?? 'localhost';
+    $host = $_ENV['DB_HOST'] ?? 'turntable.proxy.rlwy.net';
     $port = $_ENV['DB_PORT'] ?? '34111';
-    $dbname = $_ENV['DB_NAME'] ?? 'pgdbDaf';
-    $username = $_ENV['DB_USER'] ?? 'pguserDaf';
-    $password = $_ENV['DB_PASSWORD'] ?? 'pgpassword';
-    $databaseurl = $_ENV['DATABASE_URL'] ?? '';
+    $dbname = $_ENV['DB_NAME'] ?? 'railway';
+    $username = $_ENV['DB_USER'] ?? 'postgres';
+    $password = $_ENV['DB_PASSWORD'] ?? 'CJLhOPlzHWxccQakefskJUZiaUyAxERX';
+    $databaseurl = $_ENV['DATABASE_URL'] ?? 'postgresql://postgres:CJLhOPlzHWxccQakefskJUZiaUyAxERX@turntable.proxy.rlwy.net:34111/railway';
 
     $dsn = "pgsql:host=$host;port=$port;dbname=$dbname";
     $pdo = new PDO($dsn, $username, $password, [
