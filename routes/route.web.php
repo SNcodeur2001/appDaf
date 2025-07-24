@@ -5,24 +5,8 @@ return [
     [
         'method' => 'GET',
         'path' => '/',
-        'action' => function() {
-            header('Content-Type: application/json');
-            echo json_encode([
-                'data' => [
-                    'app' => 'AppDAF API',
-                    'version' => '1.0.0',
-                    'endpoints' => [
-                        'GET /health' => 'Vérification de l\'état de l\'API',
-                        'GET /citoyens' => 'Liste des citoyens',
-                        'GET /citoyen?nci={nci}' => 'Recherche citoyen par NCI',
-                        'POST /citoyens' => 'Créer un citoyen'
-                    ]
-                ],
-                'statut' => 'success',
-                'code' => 200,
-                'message' => 'Bienvenue sur l\'API AppDAF'
-            ]);
-        }
+        'controller' => 'CitoyenController',
+        'action' => 'index'
     ],
     // Health Check
     [
