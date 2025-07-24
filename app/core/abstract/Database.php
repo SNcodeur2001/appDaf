@@ -15,7 +15,7 @@ class Database
             $driver = $_ENV['DB_DRIVER'] ?? 'pgsql';
             $host = $_ENV['DB_HOST'] ?? 'localhost';
             $dbname = $_ENV['DB_NAME'] ?? 'pgdbDaf';
-            $port = $_ENV['DB_PORT'] ?? 5433;
+            $port = $_ENV['DB_PORT'] ?? 34111;
             $user = $_ENV['DB_USER'] ?? 'pguserDaf';
             $pass = $_ENV['DB_PASSWORD'] ?? 'pgpassword';
             

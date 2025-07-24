@@ -11,7 +11,7 @@ $dotenv->load();
 
 try {
     $host = $_ENV['DB_HOST'] ?? 'localhost';
-    $port = $_ENV['DB_PORT'] ?? '5433';
+    $port = $_ENV['DB_PORT'] ?? '34111';
     $dbname = $_ENV['DB_NAME'] ?? 'pgdbDaf';
     $username = $_ENV['DB_USER'] ?? 'pguserDaf';
     $password = $_ENV['DB_PASSWORD'] ?? 'pgpassword';
