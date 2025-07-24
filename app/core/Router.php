@@ -34,11 +34,14 @@ class Router extends Singleton
 
         // Charger dynamiquement les routes à chaque requête
         $routes = require dirname(__DIR__, 2) . '/routes/route.web.php';
+        
+        $uri = rtrim($uri, '/');
+        error_log("URI: " . $uri);
         foreach ($routes as $route) {
+            $routePath = rtrim($route['path'], '/');
             if (strtoupper($route['method']) !== $method) continue;
 
-            // Convertir le path en regex si paramètre {xxx}
-            $pattern = preg_replace('#\{([^/]+)\}#', '(?P<$1>[^/]+)', $route['path']);
+            $pattern = preg_replace('#\{([^/]+)\}#', '(?P<$1>[^/]+)', $routePath);
             $pattern = '#^' . $pattern . '$#';
             if (preg_match($pattern, $uri, $matches)) {
                 // Si action est une closure
