@@ -146,7 +146,7 @@ Content-Type: application/json
 }
 ```
 
-#### Réponse Error
+#### Réponse Error 
 ```json
 {
   "data": null,
