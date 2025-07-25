@@ -16,7 +16,7 @@ class CitoyenRepository extends AbstractRepository implements ICitoyenRepository
         try {
             $stmt = $this->pdo->prepare("
                 SELECT id, nci, nom, prenom, date_naissance, lieu_naissance, url_photo_identite, created_at, updated_at 
-                FROM citoyens 
+                FROM citoyen 
                 WHERE nci = :nci
             ");
             $stmt->bindParam(':nci', $nci, PDO::PARAM_STR);
@@ -51,13 +51,13 @@ class CitoyenRepository extends AbstractRepository implements ICitoyenRepository
             if ($citoyen->getId() === null) {
                 // Insertion
                 $stmt = $this->pdo->prepare("
-                    INSERT INTO citoyens (nci, nom, prenom, date_naissance, lieu_naissance, url_photo_identite) 
+                    INSERT INTO citoyen (nci, nom, prenom, date_naissance, lieu_naissance, url_photo_identite) 
                     VALUES (:nci, :nom, :prenom, :date_naissance, :lieu_naissance, :url_photo_identite)
                 ");
             } else {
                 // Mise à jour
                 $stmt = $this->pdo->prepare("
-                    UPDATE citoyens 
+                    UPDATE citoyen
                     SET nom = :nom, prenom = :prenom, date_naissance = :date_naissance, 
                         lieu_naissance = :lieu_naissance, url_photo_identite = :url_photo_identite, 
                         updated_at = CURRENT_TIMESTAMP
@@ -91,7 +91,7 @@ class CitoyenRepository extends AbstractRepository implements ICitoyenRepository
         try {
             $stmt = $this->pdo->query("
                 SELECT id, nci, nom, prenom, date_naissance, lieu_naissance, url_photo_identite 
-                FROM citoyens 
+                FROM citoyen 
                 ORDER BY created_at DESC
             ");
             
@@ -111,7 +111,7 @@ class CitoyenRepository extends AbstractRepository implements ICitoyenRepository
 
             return $citoyens;
         } catch (PDOException $e) {
-            throw new \Exception("Erreur lors de la récupération des citoyens: " . $e->getMessage());
+            throw new \Exception("Erreur lors de la récupération des citoyen: " . $e->getMessage());
         }
     }
 }

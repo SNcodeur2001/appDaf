@@ -13,7 +13,8 @@ services:
       DB_USER: pguserDaf
       DB_PASSWORD: pgpassword
     volumes:
-      - ./public:/var/www/html/public  # Changé de ./app vers ./public
+      - .:/var/www/html  
+      - ./public:/var/www/html/public 
     networks:
       - backend
     depends_on:

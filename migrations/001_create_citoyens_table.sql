@@ -1,5 +1,5 @@
 -- Migration pour créer la table citoyens
-CREATE TABLE IF NOT EXISTS citoyens (
+CREATE TABLE IF NOT EXISTS citoyen (
     id SERIAL PRIMARY KEY,
     nci VARCHAR(20) UNIQUE NOT NULL,
     nom VARCHAR(100) NOT NULL,
@@ -12,7 +12,7 @@ CREATE TABLE IF NOT EXISTS citoyens (
 );
 
 -- Index sur le NCI pour optimiser les recherches
-CREATE INDEX idx_citoyens_nci ON citoyens(nci);
+CREATE INDEX idx_citoyen_nci ON citoyen(nci);
 
 -- Trigger pour mettre à jour updated_at automatiquement
 CREATE OR REPLACE FUNCTION update_updated_at_column()
@@ -23,7 +23,7 @@ BEGIN
 END;
 $$ language 'plpgsql';
 
-CREATE TRIGGER update_citoyens_updated_at 
-    BEFORE UPDATE ON citoyens 
+CREATE TRIGGER update_citoyen_updated_at 
+    BEFORE UPDATE ON citoyen 
     FOR EACH ROW 
     EXECUTE FUNCTION update_updated_at_column();
